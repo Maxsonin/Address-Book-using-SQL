@@ -1,4 +1,5 @@
 using FontAwesome.Sharp;
+using System.Runtime.InteropServices;
 
 namespace AddressBook
 {
@@ -6,6 +7,7 @@ namespace AddressBook
     {
         private IconButton currentButton;
         private Panel leftBorderBtn;
+        private Form currentChildForm;
 
         public MainForm()
         {
@@ -46,6 +48,10 @@ namespace AddressBook
                 leftBorderBtn.Location = new Point(0, currentButton.Location.Y);
                 leftBorderBtn.Visible = true;
                 leftBorderBtn.BringToFront();
+
+                // Title Bar
+                iconCurrentChield.IconChar = currentButton.IconChar;
+                titleOfCurChild.Text = currentButton.Text;
             }
         }
 
@@ -66,6 +72,7 @@ namespace AddressBook
         private void DatabaseButton_Click(object sender, EventArgs e)
         {
             ActiveButton(sender);
+            OpenChildForm(new Database());
         }
 
         private void DatabaseInfoButton_Click(object sender, EventArgs e)
@@ -80,7 +87,49 @@ namespace AddressBook
 
         private void ToHomeButton_Click(object sender, EventArgs e)
         {
+            if (currentChildForm != null)
+            {
+                currentChildForm.Close();
+            }
+            Reset();
+        }
+
+        private void Reset()
+        {
             DisableButton();
+            leftBorderBtn.Visible = false;
+            iconCurrentChield.IconChar = IconChar.Paypal;
+            titleOfCurChild.Text = "Home";
+        }
+
+        //Drag Form
+        [DllImport("user32.DLL", EntryPoint = "ReleaseCapture")]
+        private extern static void ReleaseCapture();
+
+        [DllImport("user32.DLL", EntryPoint = "SendMessage")]
+        private extern static void SendMessage(System.IntPtr hWnd, int wMsg, int wParam, int lParam);
+
+        private void panelTitleBar_MouseDown(object sender, MouseEventArgs e)
+        {
+            ReleaseCapture();
+            SendMessage(this.Handle, 0x112, 0xf012, 0);
+        }
+
+        // Form Managmant
+        private void OpenChildForm(Form childForm)
+        {
+            if (currentChildForm != null)
+            {
+                currentChildForm.Close();
+            }
+            currentChildForm = childForm;
+            childForm.TopLevel = false;
+            childForm.FormBorderStyle = FormBorderStyle.None;
+            childForm.Dock = DockStyle.Fill;
+            panelDesktop.Controls.Add(childForm);
+            panelDesktop.Tag = childForm;
+            childForm.BringToFront();
+            childForm.Show();
         }
     }
 }
