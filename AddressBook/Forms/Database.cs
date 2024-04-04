@@ -1,77 +1,43 @@
-﻿using MySql.Data.MySqlClient;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using System.Windows.Forms;
 
 namespace AddressBook
 {
     public partial class Database : Form
     {
-        string server = "192.168.1.13";
-        string uid = "test";
-        string password = "admin1";
-        string database = "addressbook";
+        ConnectedMySqlDatabase connectedMySqlDatabase;
+        const string DATABASE = "addressbook";
+        const string TABLE = "employeesinfo";
 
         public Database()
         {
             InitializeComponent();
-            ReloadDB();
+            connectedMySqlDatabase = new ConnectedMySqlDatabase(DATABASE);
+            DataGridView.DataSource = connectedMySqlDatabase.GetDataTable(TABLE);
         }
 
         private void ReloadButton_Click(object sender, EventArgs e)
         {
-            ReloadDB();
-        }
-
-        private void ReloadDB()
-        {
-            string connectionString = $"SERVER={server}; UID={uid}; PWD={password}; DATABASE={database}";
-            MySqlConnection mySqlConnection = new MySqlConnection(connectionString);
-
-            try
-            {
-                mySqlConnection.Open();
-                string query = "SELECT * FROM employeesinfo";
-                MySqlCommand cmd = new MySqlCommand(query, mySqlConnection);
-
-                MySqlDataReader reader = cmd.ExecuteReader();
-
-                DataTable dt = new DataTable();
-                dt.Load(reader);
-                DBViewer.DataSource = dt;
-            }
-            catch (Exception ex)
-            {
-                System.Windows.Forms.MessageBox.Show("Error: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-            finally
-            {
-                mySqlConnection.Close();
-            }
+            DataGridView.DataSource = connectedMySqlDatabase.GetDataTable(TABLE);
         }
 
         private void UpdateButton_Click(object sender, EventArgs e)
         {
-            int cellcalue = 0;
-            if (DBViewer.SelectedCells.Count > 0)
+            int employeeToUpdateID = 0;
+            if (DataGridView.SelectedCells.Count == 1)
             {
-                int selectedRow = DBViewer.SelectedCells[0].RowIndex;
+                int selectedRow = DataGridView.SelectedCells[0].RowIndex;
                 if (selectedRow > -1)
                 {
-                    var num = DBViewer.Rows[selectedRow].Cells[0].Value;
-                    cellcalue = Convert.ToInt32(num);
+                    employeeToUpdateID = Convert.ToInt32(DataGridView.Rows[selectedRow].Cells[0].Value);
                 }
-            }
 
-            Update updatePopup = new Update(cellcalue);
-            updatePopup.Show();
+                Update updatePopup = new Update(DataGridView, employeeToUpdateID);
+                updatePopup.Show();
+            }
+            else
+            {
+                MessageBox.Show("Select One Employee to Update");
+            }
         }
     }
 }

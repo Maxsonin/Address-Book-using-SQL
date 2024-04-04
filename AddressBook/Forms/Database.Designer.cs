@@ -28,26 +28,26 @@
         /// </summary>
         private void InitializeComponent()
         {
-            DBViewer = new DataGridView();
+            DataGridView = new DataGridView();
             ReloadButton = new Button();
             AddButton = new Button();
             UpdateButton = new Button();
-            ((System.ComponentModel.ISupportInitialize)DBViewer).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)DataGridView).BeginInit();
             SuspendLayout();
             // 
-            // DBViewer
+            // DataGridView
             // 
-            DBViewer.AllowUserToAddRows = false;
-            DBViewer.AllowUserToDeleteRows = false;
-            DBViewer.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            DBViewer.BackgroundColor = Color.FromArgb(231, 239, 254);
-            DBViewer.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            DBViewer.Location = new Point(42, 98);
-            DBViewer.Name = "DBViewer";
-            DBViewer.ReadOnly = true;
-            DBViewer.RowHeadersVisible = false;
-            DBViewer.Size = new Size(400, 259);
-            DBViewer.TabIndex = 0;
+            DataGridView.AllowUserToAddRows = false;
+            DataGridView.AllowUserToDeleteRows = false;
+            DataGridView.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            DataGridView.BackgroundColor = Color.FromArgb(231, 239, 254);
+            DataGridView.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            DataGridView.Location = new Point(42, 98);
+            DataGridView.Name = "DataGridView";
+            DataGridView.ReadOnly = true;
+            DataGridView.RowHeadersVisible = false;
+            DataGridView.Size = new Size(400, 259);
+            DataGridView.TabIndex = 0;
             // 
             // ReloadButton
             // 
@@ -90,16 +90,16 @@
             Controls.Add(UpdateButton);
             Controls.Add(AddButton);
             Controls.Add(ReloadButton);
-            Controls.Add(DBViewer);
+            Controls.Add(DataGridView);
             Name = "Database";
             Text = "Database";
-            ((System.ComponentModel.ISupportInitialize)DBViewer).EndInit();
+            ((System.ComponentModel.ISupportInitialize)DataGridView).EndInit();
             ResumeLayout(false);
         }
 
         #endregion
 
-        private DataGridView DBViewer;
+        private DataGridView DataGridView;
         private Button ReloadButton;
         private Button AddButton;
         private Button UpdateButton;

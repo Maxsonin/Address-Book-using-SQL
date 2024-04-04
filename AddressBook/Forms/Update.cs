@@ -1,104 +1,93 @@
 ﻿using MySql.Data.MySqlClient;
-using System.Windows;
-using System.Windows.Controls.Primitives;
-using System.Windows.Forms;
+
 namespace AddressBook
 {
     public partial class Update : Form
     {
-        string server = "192.168.1.13";
-        string uid = "test";
-        string password = "admin1";
-        string database = "addressbook";
+        ConnectedMySqlDatabase connectedMySqlDatabase;
+        const string DATABASE = "addressbook";
+        const string TABLE = "employeesinfo";
+        readonly int employeeID;
 
-        List<string> cities = new List<string>();
-        List<string> positions = new List<string>();
+        const int minEmployeeAge = 16;
 
-        int employeeID;
+        DataGridView dataGridView;
 
-        public Update(int ID)
+        public struct EmployeeInfo
         {
-            employeeID = ID;
-
-            InitializeComponent();
-            FetchEnumValuesFromDatabase("City", cities);
-            comboBoxCity.Items.AddRange(cities.ToArray());
-
-            FetchEnumValuesFromDatabase("Position", positions);
-            comboBoxPosition.Items.AddRange(positions.ToArray());
-
-            ReadDataFromColumn(ID);
+            public string FullName { get; set; }
+            public string City { get; set; }
+            public string Street { get; set; }
+            public string Position { get; set; }
+            public int Age { get; set; }
+            public bool Married { get; set; }
         }
 
-        private void FetchEnumValuesFromDatabase(string fieldName, List<string> arrayToAdd)
+        public Update(DataGridView DataGridView, int ID)
         {
-            string constring = "server=" + server + ";uid=" + uid + ";pwd=" + password + ";database=" + database;
-            MySqlConnection con = new MySqlConnection(constring);
+            InitializeComponent();
+            connectedMySqlDatabase = new ConnectedMySqlDatabase(DATABASE);
+            employeeID = ID;
+
+            dataGridView = DataGridView;
+
+            comboBoxCity.Items.AddRange(connectedMySqlDatabase.FetchEnumValues(TABLE, "City").ToArray());
+            comboBoxPosition.Items.AddRange(connectedMySqlDatabase.FetchEnumValues(TABLE, "Position").ToArray());
+
+            SetValuesToFields(ReadEmployeeInfo(employeeID));
+        }
+
+        private EmployeeInfo ReadEmployeeInfo(int ID)
+        {
+            MySqlConnection mySqlConnection = connectedMySqlDatabase.GetMySqlConnection();
+            EmployeeInfo employeeInfo = new EmployeeInfo();
 
             try
             {
-                con.Open();
-                string query = $"SHOW COLUMNS FROM employeesinfo WHERE Field = '{fieldName}'";
-                MySqlCommand cmd = new MySqlCommand(query, con);
-
-                MySqlDataReader reader = cmd.ExecuteReader();
-
-                if (reader.Read())
+                mySqlConnection.Open();
+                string query = $"SELECT * FROM employeesinfo WHERE ID = '{ID}'";
+                using (MySqlCommand cmd = new MySqlCommand(query, mySqlConnection))
                 {
-                    string enumValues = reader["Type"].ToString();
-                    string[] parts = enumValues.Replace("enum(", "").Replace(")", "").Replace("'", "").Split(',');
-                    foreach (string part in parts)
+                    using (MySqlDataReader reader = cmd.ExecuteReader())
                     {
-                        arrayToAdd.Add(part.Trim());
+                        if (reader.Read())
+                        {
+                            employeeInfo.FullName = reader["Full Name"].ToString();
+                            employeeInfo.City = reader["City"].ToString();
+                            employeeInfo.Street = reader["Street"].ToString();
+                            employeeInfo.Position = reader["Position"].ToString();
+                            employeeInfo.Age = Convert.ToInt32(reader["Age"]);
+                            employeeInfo.Married = reader["Married"].ToString().Equals("Yes", StringComparison.OrdinalIgnoreCase);
+                        }
+                        else
+                        {
+                            MessageBox.Show("No data found for the provided ID.");
+                        }
                     }
                 }
             }
             catch (Exception ex)
             {
-                System.Windows.MessageBox.Show("Error: " + ex.Message);
+                MessageBox.Show("Error: " + ex.Message);
             }
             finally
             {
-                con.Close();
+                mySqlConnection.Close();
             }
+
+            return employeeInfo;
         }
 
-        private void ReadDataFromColumn(int ID)
+        private void SetValuesToFields(EmployeeInfo employeeInfo)
         {
-            string constring = "server=" + server + ";uid=" + uid + ";pwd=" + password + ";database=" + database;
-            MySqlConnection con = new MySqlConnection(constring);
-
-            try
-            {
-                con.Open();
-                string query = $"SELECT * FROM employeesinfo WHERE ID = '{ID}'";
-                MySqlCommand cmd = new MySqlCommand(query, con);
-
-                MySqlDataReader reader = cmd.ExecuteReader();
-
-                if (reader.Read())
-                {
-                    textBoxFullName.Text = reader["Full Name"].ToString();
-                    comboBoxCity.SelectedItem = reader["City"].ToString();
-                    textBoxStreet.Text = reader["Street"].ToString();
-                    comboBoxPosition.SelectedItem = reader["Position"].ToString();
-                    textBoxAge.Text = reader["Age"].ToString();
-                    checkBoxMerried.Checked = reader["Married"].ToString().Equals("Yes", StringComparison.OrdinalIgnoreCase);
-                }
-                else
-                {
-                    System.Windows.Forms.MessageBox.Show("No data found for the provided ID.");
-                }
-            }
-            catch (Exception ex)
-            {
-                System.Windows.Forms.MessageBox.Show("Error: " + ex.Message);
-            }
-            finally
-            {
-                con.Close();
-            }
+            textBoxFullName.Text = employeeInfo.FullName;
+            comboBoxCity.SelectedItem = employeeInfo.City;
+            textBoxStreet.Text = employeeInfo.Street;
+            comboBoxPosition.SelectedItem = employeeInfo.Position;
+            textBoxAge.Text = employeeInfo.Age.ToString();
+            checkBoxMerried.Checked = employeeInfo.Married;
         }
+
 
         private int ValidInputs()
         {
@@ -107,7 +96,7 @@ namespace AddressBook
                 return -1;
             }
 
-            if (!int.TryParse(textBoxAge.Text, out int age) || age < 16)
+            if (!int.TryParse(textBoxAge.Text, out int age) || age < minEmployeeAge)
             {
                 return -2;
             }
@@ -117,55 +106,51 @@ namespace AddressBook
 
         private void UpdateButton_Click(object sender, EventArgs e)
         {
+            MySqlConnection mySqlConnection = connectedMySqlDatabase.GetMySqlConnection();
+
             int validationResult = ValidInputs();
             if (validationResult == 0)
             {
-                string connectionString = $"SERVER={server}; UID={uid}; PWD={password}; DATABASE={database}";
-                using (MySqlConnection mySqlConnection = new MySqlConnection(connectionString))
+                string selectedCity = comboBoxCity.SelectedItem.ToString();
+                string selectedPosition = comboBoxPosition.SelectedItem.ToString();
+                string selectedMarried = checkBoxMerried.Checked ? "Yes" : "No";
+
+                try
                 {
-                    string selectedCity = comboBoxCity.SelectedItem.ToString();
-                    string selectedPosition = comboBoxPosition.SelectedItem.ToString();
-                    string selectedMarried = checkBoxMerried.Checked ? "Yes" : "No";
+                    mySqlConnection.Open();
+                    string query = $"UPDATE {TABLE} SET `Full Name` = '{textBoxFullName.Text}', City = '{selectedCity}', Street = '{textBoxStreet.Text}', Position = '{selectedPosition}', Age = '{textBoxAge.Text}', Married = '{selectedMarried}' WHERE ID = '{employeeID}'";
+                    MySqlCommand cmd = new MySqlCommand(query, mySqlConnection);
 
-                    try
+                    int rowsAffected = cmd.ExecuteNonQuery();
+                    if (rowsAffected > 0)
                     {
-                        mySqlConnection.Open();
-                        string query = $"UPDATE employeesinfo SET `Full Name` = '{textBoxFullName.Text}', City = '{selectedCity}', Street = '{textBoxStreet.Text}', Position = '{selectedPosition}', Age = '{textBoxAge.Text}', Married = '{selectedMarried}' WHERE ID = '{employeeID}'";
-                        MySqlCommand cmd = new MySqlCommand(query, mySqlConnection);
-
-                        int rowsAffected = cmd.ExecuteNonQuery();
-                        if (rowsAffected > 0)
-                        {
-                            System.Windows.Forms.MessageBox.Show("Data Successfully Updated");
-                        }
-                        else
-                        {
-                            System.Windows.Forms.MessageBox.Show("No records were updated");
-                        }
+                        MessageBox.Show("Data Successfully Updated");
                     }
-                    catch (Exception ex)
+                    else
                     {
-                        System.Windows.Forms.MessageBox.Show("Error: " + ex.Message);
+                        MessageBox.Show("No records were updated");
                     }
-                    finally
-                    {
-                        mySqlConnection.Close();
-                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Error: " + ex.Message);
+                }
+                finally
+                {
+                    mySqlConnection.Close();
+                    dataGridView.DataSource = connectedMySqlDatabase.GetDataTable(TABLE);
                 }
             }
             else if (validationResult == -1)
             {
-                System.Windows.Forms.MessageBox.Show("All fields should be filled");
+                MessageBox.Show("All fields should be filled");
             }
             else if (validationResult == -2)
             {
-                System.Windows.Forms.MessageBox.Show("Age should be a valid number greater than or equal to 16");
+                MessageBox.Show("Age should be a valid number greater than or equal to 16");
             }
         }
 
-        private void ExitButton_Click(object sender, EventArgs e)
-        {
-            Close();
-        }
+        private void ExitButton_Click(object sender, EventArgs e) => Close();
     }
 }
