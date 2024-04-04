@@ -9,7 +9,6 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Forms;
 
 namespace AddressBook
 {
@@ -19,7 +18,6 @@ namespace AddressBook
         string uid = "test";
         string password = "admin1";
         string database = "addressbook";
-        int port = 3036;
 
         public Database()
         {
@@ -34,14 +32,14 @@ namespace AddressBook
 
         private void ReloadDB()
         {
-            string constring = "server=" + server + ";uid=" + uid + ";pwd=" + password + ";database=" + database;
-            MySqlConnection con = new MySqlConnection(constring);
+            string connectionString = $"SERVER={server}; UID={uid}; PWD={password}; DATABASE={database}";
+            MySqlConnection mySqlConnection = new MySqlConnection(connectionString);
 
             try
             {
-                con.Open();
-                string query = "select * from employeesinfo";
-                MySqlCommand cmd = new MySqlCommand(query, con);
+                mySqlConnection.Open();
+                string query = "SELECT * FROM employeesinfo";
+                MySqlCommand cmd = new MySqlCommand(query, mySqlConnection);
 
                 MySqlDataReader reader = cmd.ExecuteReader();
 
@@ -51,13 +49,29 @@ namespace AddressBook
             }
             catch (Exception ex)
             {
-                System.Windows.MessageBox.Show("Error: " + ex.Message);
+                System.Windows.Forms.MessageBox.Show("Error: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             finally
             {
-                con.Close(); // Close the connection when done
+                mySqlConnection.Close();
             }
         }
 
+        private void UpdateButton_Click(object sender, EventArgs e)
+        {
+            int cellcalue = 0;
+            if (DBViewer.SelectedCells.Count > 0)
+            {
+                int selectedRow = DBViewer.SelectedCells[0].RowIndex;
+                if (selectedRow > -1)
+                {
+                    var num = DBViewer.Rows[selectedRow].Cells[0].Value;
+                    cellcalue = Convert.ToInt32(num);
+                }
+            }
+
+            Update updatePopup = new Update(cellcalue);
+            updatePopup.Show();
+        }
     }
 }
