@@ -1,4 +1,5 @@
 ﻿using MySql.Data.MySqlClient;
+using System.Xml.Linq;
 
 namespace AddressBook.Forms.LogIn
 {
@@ -22,10 +23,20 @@ namespace AddressBook.Forms.LogIn
             }
             else if (CheckLogIn(TABLE, textBoxLogin.Text, textBoxPassword.Text))
             {
-                Hide();
-                MainForm main = new MainForm();
-                main.FormClosed += (s, args) => this.Close();
-                main.Show();
+                if (CanModify(TABLE, textBoxLogin.Text, textBoxPassword.Text))
+                {
+                    Hide();
+                    MainForm main = new MainForm();
+                    main.FormClosed += (s, args) => Close();
+                    main.Show();
+                }
+                else
+                {
+                    Hide();
+                    MainFormReadOnly main = new MainFormReadOnly();
+                    main.FormClosed += (s, args) => Close();
+                    main.Show();
+                }
             }
             else
             {
@@ -33,7 +44,41 @@ namespace AddressBook.Forms.LogIn
             }
         }
 
-        public bool CheckLogIn(string tableName, string NAME, string PASSWORD)
+        private bool CanModify(string TABLE, string NAME, string PASSWORD)
+        {
+            MySqlConnection mySqlConnection = connectedMySqlDatabase.GetMySqlConnection();
+
+            bool can = false;
+            try
+            {
+                string query = $"SELECT CANMODIFY FROM {TABLE} WHERE NAME = @NAME AND PASSWORD = @PASSWORD";
+
+                using (MySqlCommand cmd = new MySqlCommand(query, mySqlConnection))
+                {
+                    cmd.Parameters.AddWithValue("@NAME", NAME);
+                    cmd.Parameters.AddWithValue("@PASSWORD", PASSWORD);
+                    mySqlConnection.Open();
+                    string result = cmd.ExecuteScalar().ToString();
+
+                    if (result == "YES")
+                    {
+                        can = true;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error: " + ex.Message);
+            }
+            finally
+            {
+                mySqlConnection.Close();
+            }
+
+            return can;
+        }
+
+        private bool CheckLogIn(string tableName, string NAME, string PASSWORD)
         {
             MySqlConnection mySqlConnection = connectedMySqlDatabase.GetMySqlConnection();
 
