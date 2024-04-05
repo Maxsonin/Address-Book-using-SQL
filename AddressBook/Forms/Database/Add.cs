@@ -39,7 +39,15 @@ namespace AddressBook
             return 0;
         }
 
-        private void UpdateButton_Click(object sender, EventArgs e)
+        private void textBoxAge_TextChanged(object sender, EventArgs e)
+        {
+            if (!int.TryParse(textBoxAge.Text, out _))
+            {
+                textBoxAge.Text = "";
+            }
+        }
+
+        private void AddButton_Click(object sender, EventArgs e)
         {
             MySqlConnection mySqlConnection = connectedMySqlDatabase.GetMySqlConnection();
 
@@ -93,14 +101,6 @@ namespace AddressBook
             else if (validationResult == -2)
             {
                 MessageBox.Show("Age should be a valid number greater than or equal to 16");
-            }
-        }
-
-        private void textBoxAge_TextChanged(object sender, EventArgs e)
-        {
-            if (!int.TryParse(textBoxAge.Text, out _))
-            {
-                textBoxAge.Text = "";
             }
         }
     }

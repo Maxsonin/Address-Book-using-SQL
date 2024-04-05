@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            UpdateButton = new Button();
+            AddButton = new Button();
             ExitButton = new Button();
             checkBoxMerried = new CheckBox();
             label5 = new Label();
@@ -43,16 +43,16 @@
             textBoxFullName = new TextBox();
             SuspendLayout();
             // 
-            // UpdateButton
+            // AddButton
             // 
-            UpdateButton.Font = new Font("Verdana", 18F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            UpdateButton.Location = new Point(189, 299);
-            UpdateButton.Name = "UpdateButton";
-            UpdateButton.Size = new Size(128, 51);
-            UpdateButton.TabIndex = 37;
-            UpdateButton.Text = "Add";
-            UpdateButton.UseVisualStyleBackColor = true;
-            UpdateButton.Click += UpdateButton_Click;
+            AddButton.Font = new Font("Verdana", 18F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            AddButton.Location = new Point(189, 299);
+            AddButton.Name = "AddButton";
+            AddButton.Size = new Size(128, 51);
+            AddButton.TabIndex = 37;
+            AddButton.Text = "Add";
+            AddButton.UseVisualStyleBackColor = true;
+            AddButton.Click += AddButton_Click;
             // 
             // ExitButton
             // 
@@ -177,7 +177,7 @@
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.FromArgb(231, 239, 254);
             ClientSize = new Size(396, 382);
-            Controls.Add(UpdateButton);
+            Controls.Add(AddButton);
             Controls.Add(ExitButton);
             Controls.Add(checkBoxMerried);
             Controls.Add(label5);
@@ -198,7 +198,7 @@
 
         #endregion
 
-        private Button UpdateButton;
+        private Button AddButton;
         private Button ExitButton;
         private CheckBox checkBoxMerried;
         private Label label5;
