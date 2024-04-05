@@ -1,5 +1,4 @@
-﻿using Google.Protobuf.WellKnownTypes;
-using MySql.Data.MySqlClient;
+﻿using MySql.Data.MySqlClient;
 using System.Data;
 
 namespace AddressBook
@@ -144,6 +143,56 @@ namespace AddressBook
             }
 
             return updatedInfoDataTable;
+        }
+
+        public void DeleteEnumValue(string tableName, string enumName, string valueToRemove)
+        {
+            try
+            {
+                List<string> valuesList = FetchEnumValues(tableName, enumName);
+                valuesList.Remove(valueToRemove);
+
+                mySqlConnection.Open();
+                string allValues = string.Join(", ", valuesList.Select(v => $"'{v}'"));
+                string query = $"ALTER TABLE {tableName} MODIFY COLUMN {enumName} ENUM({allValues})";
+                using (MySqlCommand cmd = new MySqlCommand(query, mySqlConnection))
+                {
+                    cmd.ExecuteNonQuery();
+                    MessageBox.Show("Data removed Successfully");
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error: " + ex.Message);
+            }
+            finally
+            {
+                mySqlConnection.Close();
+            }
+        }
+
+        public void AddEnumValue(string tableName, string enumName, string valueToAdd)
+        {
+            try
+            {
+                List<string> valuesList = FetchEnumValues(tableName, enumName);
+                mySqlConnection.Open();
+                string allValues = string.Join(", ", valuesList.Select(v => $"'{v}'").Concat(new[] { $"'{valueToAdd}'" }));
+                string query = $"ALTER TABLE {tableName} MODIFY COLUMN {enumName} ENUM({allValues})";
+                using (MySqlCommand cmd = new MySqlCommand(query, mySqlConnection))
+                {
+                    cmd.ExecuteNonQuery();
+                    MessageBox.Show("Data added Successfully");
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error: " + ex.Message);
+            }
+            finally
+            {
+                mySqlConnection.Close();
+            }
         }
     }
 }

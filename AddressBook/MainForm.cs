@@ -1,3 +1,5 @@
+using AddressBook.Forms.DBAccess;
+using AddressBook.Forms.DBInfo;
 using FontAwesome.Sharp;
 using System.Runtime.InteropServices;
 
@@ -78,11 +80,13 @@ namespace AddressBook
         private void DatabaseInfoButton_Click(object sender, EventArgs e)
         {
             ActiveButton(sender);
+            OpenChildForm(new DBInfo());
         }
 
         private void DatabaseAccessButton_Click(object sender, EventArgs e)
         {
             ActiveButton(sender);
+            OpenChildForm(new DBAccess());
         }
 
         private void ToHomeButton_Click(object sender, EventArgs e)
