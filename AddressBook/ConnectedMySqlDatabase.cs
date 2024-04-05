@@ -1,4 +1,5 @@
-﻿using MySql.Data.MySqlClient;
+﻿using Google.Protobuf.WellKnownTypes;
+using MySql.Data.MySqlClient;
 using System.Data;
 
 namespace AddressBook
@@ -85,6 +86,64 @@ namespace AddressBook
             }
 
             return enumValues;
+        }
+
+        public List<string> GetColumnNames(string tableName)
+        {
+            List<string> columnNames = new List<string>();
+            try
+            {
+                mySqlConnection.Open();
+                string query = $"SELECT COLUMN_NAME FROM information_schema.columns WHERE table_name = '{tableName}'";
+                using (MySqlCommand cmd = new MySqlCommand(query, mySqlConnection))
+                {
+                    using (MySqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            string columnName = reader.GetString(0);
+                            columnNames.Add(columnName);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred: {ex.Message}");
+            }
+            finally
+            {
+                mySqlConnection.Close();
+            }
+
+            return columnNames;
+        }
+
+        public DataTable SearchData(string tableName, string fieldToSearchIn, string valueToSearch)
+        {
+            DataTable updatedInfoDataTable = new DataTable();
+            try
+            {
+                mySqlConnection.Open();
+                string query = $"SELECT * FROM {tableName} WHERE `{fieldToSearchIn}` LIKE '%{valueToSearch}%'";
+                using (MySqlCommand cmd = new MySqlCommand(query, mySqlConnection))
+                {
+                    using (MySqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        updatedInfoDataTable.Load(reader);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred: {ex.Message}");
+            }
+            finally
+            {
+                mySqlConnection.Close();
+            }
+
+            return updatedInfoDataTable;
         }
     }
 }

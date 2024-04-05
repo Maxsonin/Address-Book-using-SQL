@@ -32,6 +32,11 @@
             ReloadButton = new Button();
             AddButton = new Button();
             UpdateButton = new Button();
+            searchPrompt = new Label();
+            SearchTextBox = new TextBox();
+            DeleteButton = new Button();
+            SearchByPrompt = new Label();
+            comboBoxColumnsToSearch = new ComboBox();
             ((System.ComponentModel.ISupportInitialize)DataGridView).BeginInit();
             SuspendLayout();
             // 
@@ -42,17 +47,18 @@
             DataGridView.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             DataGridView.BackgroundColor = Color.FromArgb(231, 239, 254);
             DataGridView.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            DataGridView.Location = new Point(42, 98);
+            DataGridView.Location = new Point(42, 123);
+            DataGridView.MinimumSize = new Size(800, 0);
             DataGridView.Name = "DataGridView";
             DataGridView.ReadOnly = true;
             DataGridView.RowHeadersVisible = false;
-            DataGridView.Size = new Size(400, 259);
+            DataGridView.Size = new Size(988, 286);
             DataGridView.TabIndex = 0;
             // 
             // ReloadButton
             // 
             ReloadButton.Font = new Font("Verdana", 18F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            ReloadButton.Location = new Point(324, 42);
+            ReloadButton.Location = new Point(909, 67);
             ReloadButton.Name = "ReloadButton";
             ReloadButton.Size = new Size(120, 50);
             ReloadButton.TabIndex = 12;
@@ -63,17 +69,18 @@
             // AddButton
             // 
             AddButton.Font = new Font("Verdana", 18F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            AddButton.Location = new Point(42, 42);
+            AddButton.Location = new Point(531, 67);
             AddButton.Name = "AddButton";
             AddButton.Size = new Size(120, 50);
             AddButton.TabIndex = 13;
             AddButton.Text = "ADD";
             AddButton.UseVisualStyleBackColor = true;
+            AddButton.Click += AddButton_Click;
             // 
             // UpdateButton
             // 
             UpdateButton.Font = new Font("Verdana", 18F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            UpdateButton.Location = new Point(182, 42);
+            UpdateButton.Location = new Point(657, 67);
             UpdateButton.Name = "UpdateButton";
             UpdateButton.Size = new Size(120, 50);
             UpdateButton.TabIndex = 14;
@@ -81,12 +88,66 @@
             UpdateButton.UseVisualStyleBackColor = true;
             UpdateButton.Click += UpdateButton_Click;
             // 
+            // searchPrompt
+            // 
+            searchPrompt.AutoSize = true;
+            searchPrompt.Font = new Font("Verdana", 18F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            searchPrompt.Location = new Point(41, 78);
+            searchPrompt.Name = "searchPrompt";
+            searchPrompt.Size = new Size(114, 29);
+            searchPrompt.TabIndex = 15;
+            searchPrompt.Text = "Search: ";
+            // 
+            // SearchTextBox
+            // 
+            SearchTextBox.Font = new Font("Verdana", 18F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            SearchTextBox.Location = new Point(145, 75);
+            SearchTextBox.Name = "SearchTextBox";
+            SearchTextBox.Size = new Size(380, 37);
+            SearchTextBox.TabIndex = 16;
+            SearchTextBox.TextChanged += SearchTextBox_TextChanged;
+            // 
+            // DeleteButton
+            // 
+            DeleteButton.Font = new Font("Verdana", 18F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            DeleteButton.Location = new Point(783, 67);
+            DeleteButton.Name = "DeleteButton";
+            DeleteButton.Size = new Size(120, 50);
+            DeleteButton.TabIndex = 17;
+            DeleteButton.Text = "DELETE";
+            DeleteButton.UseVisualStyleBackColor = true;
+            DeleteButton.Click += DeleteButton_Click;
+            // 
+            // SearchByPrompt
+            // 
+            SearchByPrompt.AutoSize = true;
+            SearchByPrompt.Font = new Font("Verdana", 18F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            SearchByPrompt.Location = new Point(42, 27);
+            SearchByPrompt.Name = "SearchByPrompt";
+            SearchByPrompt.Size = new Size(151, 29);
+            SearchByPrompt.TabIndex = 18;
+            SearchByPrompt.Text = "Search by: ";
+            // 
+            // comboBoxColumnsToSearch
+            // 
+            comboBoxColumnsToSearch.Font = new Font("Verdana", 18F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            comboBoxColumnsToSearch.FormattingEnabled = true;
+            comboBoxColumnsToSearch.Location = new Point(189, 24);
+            comboBoxColumnsToSearch.Name = "comboBoxColumnsToSearch";
+            comboBoxColumnsToSearch.Size = new Size(179, 37);
+            comboBoxColumnsToSearch.TabIndex = 32;
+            // 
             // Database
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.FromArgb(231, 239, 254);
-            ClientSize = new Size(798, 450);
+            ClientSize = new Size(1070, 437);
+            Controls.Add(comboBoxColumnsToSearch);
+            Controls.Add(SearchByPrompt);
+            Controls.Add(DeleteButton);
+            Controls.Add(SearchTextBox);
+            Controls.Add(searchPrompt);
             Controls.Add(UpdateButton);
             Controls.Add(AddButton);
             Controls.Add(ReloadButton);
@@ -95,6 +156,7 @@
             Text = "Database";
             ((System.ComponentModel.ISupportInitialize)DataGridView).EndInit();
             ResumeLayout(false);
+            PerformLayout();
         }
 
         #endregion
@@ -103,5 +165,10 @@
         private Button ReloadButton;
         private Button AddButton;
         private Button UpdateButton;
+        private Label searchPrompt;
+        private TextBox SearchTextBox;
+        private Button DeleteButton;
+        private Label SearchByPrompt;
+        private ComboBox comboBoxColumnsToSearch;
     }
 }

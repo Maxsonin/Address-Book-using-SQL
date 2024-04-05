@@ -23,13 +23,13 @@ namespace AddressBook
             public bool Married { get; set; }
         }
 
-        public Update(DataGridView DataGridView, int ID)
+        public Update(DataGridView dataGridView, int ID)
         {
             InitializeComponent();
             connectedMySqlDatabase = new ConnectedMySqlDatabase(DATABASE);
             employeeID = ID;
 
-            dataGridView = DataGridView;
+            this.dataGridView = dataGridView;
 
             comboBoxCity.Items.AddRange(connectedMySqlDatabase.FetchEnumValues(TABLE, "City").ToArray());
             comboBoxPosition.Items.AddRange(connectedMySqlDatabase.FetchEnumValues(TABLE, "Position").ToArray());
@@ -95,8 +95,7 @@ namespace AddressBook
             {
                 return -1;
             }
-
-            if (!int.TryParse(textBoxAge.Text, out int age) || age < minEmployeeAge)
+            else if (!int.TryParse(textBoxAge.Text, out int age) || age < minEmployeeAge)
             {
                 return -2;
             }
