@@ -1,18 +1,21 @@
 ﻿using MySql.Data.MySqlClient;
-using System.Xml.Linq;
+using System.Collections;
+using System.Text;
 
 namespace AddressBook.Forms.LogIn
 {
     public partial class LogIn : Form
     {
-        ConnectedMySqlDatabase connectedMySqlDatabase;
-        const string DATABASE = "addressbook";
-        const string TABLE = "accessinfo";
+        private ConnectedMySqlDatabase connectedMySqlDatabase;
+        private const string DATABASE = "addressbook";
+        private const string TABLE = "accessinfo";
 
         public LogIn()
         {
             InitializeComponent();
             connectedMySqlDatabase = new ConnectedMySqlDatabase(DATABASE);
+
+            textBoxPassword.UseSystemPasswordChar = true;
         }
 
         private void LogInButton_Click(object sender, EventArgs e)

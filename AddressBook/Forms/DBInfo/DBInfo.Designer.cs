@@ -64,7 +64,6 @@
             // 
             DataGridViewCities.AllowUserToAddRows = false;
             DataGridViewCities.AllowUserToDeleteRows = false;
-            DataGridViewCities.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             DataGridViewCities.BackgroundColor = Color.FromArgb(231, 239, 254);
             DataGridViewCities.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             DataGridViewCities.Location = new Point(12, 84);
@@ -78,7 +77,6 @@
             // 
             dataGridViewPositions.AllowUserToAddRows = false;
             dataGridViewPositions.AllowUserToDeleteRows = false;
-            dataGridViewPositions.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             dataGridViewPositions.BackgroundColor = Color.FromArgb(231, 239, 254);
             dataGridViewPositions.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             dataGridViewPositions.Location = new Point(473, 84);
@@ -120,7 +118,6 @@
             // 
             // DeleteCityButton
             // 
-            DeleteCityButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             DeleteCityButton.Font = new Font("Verdana", 18F, FontStyle.Regular, GraphicsUnit.Point, 0);
             DeleteCityButton.Location = new Point(148, 376);
             DeleteCityButton.Name = "DeleteCityButton";
@@ -143,7 +140,6 @@
             // 
             // DeletePositionButton
             // 
-            DeletePositionButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             DeletePositionButton.Font = new Font("Verdana", 18F, FontStyle.Regular, GraphicsUnit.Point, 0);
             DeletePositionButton.Location = new Point(664, 376);
             DeletePositionButton.Name = "DeletePositionButton";
