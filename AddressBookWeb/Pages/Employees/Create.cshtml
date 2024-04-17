@@ -1,0 +1,104 @@
+﻿@page
+@model AddressBookWeb.Pages.Employees.CreateModel
+@{
+}
+
+<br>
+<h2>New Employee</h2>
+<br>
+
+@if (Model.errorMessage.Length > 0)
+{
+	<div class="alert alert-warning alert-dismissible fade show" role="alert">
+		<strong>@Model.errorMessage</strong>
+		<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+	</div>
+}
+
+<form method="post">
+
+		<div class="row mb-3">
+			<label class="col-sm-3 col-form-label">Full Name</label>
+			<div class="col-sm-6">
+				<input type="text" class="form-control" name="name" value="@Model.employeeInfo.FullName">
+			</div>
+		</div>
+
+		<div class="row mb-3">
+			<label class="col-sm-3 col-form-label">City</label>
+			<div class="col-sm-6">
+				<select class="form-select" name="city">
+					@if (Model != null && Model.cities != null)
+					{
+						foreach (var city in Model.cities)
+						{
+							<option value="@city">@city</option>
+						}
+					}
+				</select>
+			</div>
+		</div>
+
+		<div class="row mb-3">
+			<label class="col-sm-3 col-form-label">Street</label>
+			<div class="col-sm-6">
+			<input type="text" class="form-control" name="street" value="@Model.employeeInfo.Street">
+			</div>
+		</div>
+
+		<div class="row mb-3">
+			<label class="col-sm-3 col-form-label">Position</label>
+			<div class="col-sm-6">
+				<select class="form-select" name="position">
+					@if (Model != null && Model.positions != null)
+					{
+						foreach (var position in Model.positions)
+						{
+							<option value="@position">@position</option>
+						}
+					}
+				</select>
+			</div>
+		</div>
+
+		<div class="row mb-3">
+			<label class="col-sm-3 col-form-label">Age</label>
+			<div class="col-sm-2">
+			<input type="number" class="form-control" name="age" value="16" min="0"> <!--@Model.employeeInfo.Age-->
+			</div>
+		</div>
+
+		<div class="row mb-3">
+			<label class="col-sm-3 col-form-label">Married</label>
+			<div class="col-sm-6">
+				<div class="form-check">
+					<input class="form-check-input" type="checkbox" id="marriedCheckbox" name="married" @if (Model.employeeInfo.Married)
+					{
+						<text>checked</text>
+					}>
+					<label class="form-check-label" for="marriedCheckbox">Check if married</label>
+				</div>
+			</div>
+		</div>
+
+		@if (Model.successMessage.Length > 0)
+		{
+			<div class="row mb-3">
+				<div class="col-sm-9">
+					<div class="alert alert-success alert-dismissible fade show" rele="alert">
+					<strong>@Model.successMessage</strong>
+					</div>
+				</div>
+			</div>
+		}
+
+		<div class="row md-3">
+			<div class="offset-sm-3 col-sm-3 d-grid">
+				<button type="submit" class="btn btn-primary">Submit</button>
+			</div>
+			<div class="col-sm-3 d-grid">
+				<a class="btn btn-outline-primary" href="/" role="button">Cencel</a>
+			</div>
+		</div>
+	
+</form>

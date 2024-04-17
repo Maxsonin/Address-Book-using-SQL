@@ -1,0 +1,42 @@
+﻿@page
+@model AddressBookWeb.Pages.Employees.IndexModel
+@{
+}
+
+<br>
+<h2>List of Emplyees</h2>
+<br>
+
+<a class="btn btn-primary btn-sm" href="/Employees/Create">New Client</a>
+<table class="table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Full Name</th>
+            <th>City</th>
+            <th>Street</th>
+            <th>Position</th>
+            <th>Age</th>
+            <th>Married</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var employee in Model.employees)
+        {
+            <tr>
+                <td>@employee.ID</td>
+                <td>@employee.FullName</td>
+                <td>@employee.City</td>
+                <td>@employee.Street</td>
+                <td>@employee.Position</td>
+                <td>@employee.Age</td>
+                <td>@employee.Married</td>
+                <td>
+                    <a class="btn btn-primary btn-sm" href="/Employees/Edit?id=@employee.ID">Edit</a>
+                    <a class="btn btn-danger btn-sm" href="/Employees/Delete?id=@employee.ID">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
