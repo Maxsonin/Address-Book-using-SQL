@@ -4,24 +4,27 @@ namespace AddressBook.Forms.DBInfo
 {
     public partial class DBInfo : Form
     {
-        ConnectedMySqlDatabase connectedMySqlDatabase;
+        ConnectedSqlDatabase connectedSqlDatabase;
         const string DATABASE = "addressbook";
         const string TABLE = "employeesinfo";
 
+        private const string CITY_ENUM_TABLE = "CityEnum";
+        private const string POSITION_ENUM_TABLE = "PositionEnum";
+
         public DBInfo()
         {
-            connectedMySqlDatabase = new ConnectedMySqlDatabase(DATABASE);
+            connectedSqlDatabase = new ConnectedSqlDatabase(DATABASE);
             InitializeComponent();
 
             DataGridViewCities.Columns.Add("CityColumn", "City");
-            var cityEnumValues = connectedMySqlDatabase.FetchEnumValues(TABLE, "City");
+            var cityEnumValues = connectedSqlDatabase.GetEnumValues(CITY_ENUM_TABLE, "City");
             foreach (var city in cityEnumValues)
             {
                 DataGridViewCities.Rows.Add(city.ToString());
             }
 
             dataGridViewPositions.Columns.Add("PositionColumn", "Position");
-            var positionEnumValues = connectedMySqlDatabase.FetchEnumValues(TABLE, "Position");
+            var positionEnumValues = connectedSqlDatabase.GetEnumValues(POSITION_ENUM_TABLE, "Position");
             foreach (var position in positionEnumValues)
             {
                 dataGridViewPositions.Rows.Add(position.ToString());
@@ -33,7 +36,7 @@ namespace AddressBook.Forms.DBInfo
             string userCityValueToAdd = textBoxNewCity.Text;
             if (!string.IsNullOrEmpty(userCityValueToAdd))
             {
-                connectedMySqlDatabase.AddEnumValue(TABLE, "City", textBoxNewCity.Text);
+                connectedSqlDatabase.AddEnumValue(CITY_ENUM_TABLE, "City", textBoxNewCity.Text);
                 DataGridViewCities.Rows.Add(userCityValueToAdd);
             }
         }
@@ -43,7 +46,7 @@ namespace AddressBook.Forms.DBInfo
             string userPositionValueToAdd = textBoxPosition.Text;
             if (!string.IsNullOrEmpty(userPositionValueToAdd))
             {
-                connectedMySqlDatabase.AddEnumValue(TABLE, "Position", textBoxPosition.Text);
+                connectedSqlDatabase.AddEnumValue(POSITION_ENUM_TABLE, "Position", textBoxPosition.Text);
                 dataGridViewPositions.Rows.Add(userPositionValueToAdd);
             }
         }
@@ -55,7 +58,7 @@ namespace AddressBook.Forms.DBInfo
                 string valueToRemove = DataGridViewCities.SelectedCells[0].Value.ToString();
                 if (!string.IsNullOrEmpty(valueToRemove))
                 {
-                    connectedMySqlDatabase.DeleteEnumValue(TABLE, "City", valueToRemove);
+                    connectedSqlDatabase.DeleteEnumValue(CITY_ENUM_TABLE, "City", valueToRemove);
                     foreach (DataGridViewRow row in DataGridViewCities.Rows)
                     {
                         if (row.Cells["CityColumn"].Value.ToString() == valueToRemove)
@@ -79,8 +82,7 @@ namespace AddressBook.Forms.DBInfo
                 string valueToRemove = dataGridViewPositions.SelectedCells[0].Value.ToString();
                 if (!string.IsNullOrEmpty(valueToRemove))
                 {
-                    connectedMySqlDatabase.DeleteEnumValue(TABLE, "Position", valueToRemove);
-                    //dataGridViewPositions.Rows.Remove(dataGridViewPositions.SelectedRows[0]);
+                    connectedSqlDatabase.DeleteEnumValue(POSITION_ENUM_TABLE, "Position", valueToRemove);
                     foreach (DataGridViewRow row in DataGridViewCities.Rows)
                     {
                         if (row.Cells["CityColumn"].Value.ToString() == valueToRemove)

@@ -1,27 +1,27 @@
-﻿using MySql.Data.MySqlClient;
-using System.Windows.Forms;
+﻿using System.Data.SqlClient;
 
 namespace AddressBook
 {
     public partial class Database : Form
     {
-        ConnectedMySqlDatabase connectedMySqlDatabase;
         const string DATABASE = "addressbook";
         const string TABLE = "employeesinfo";
+
+        ConnectedSqlDatabase connectedSqlDatabase;
 
         public Database()
         {
             InitializeComponent();
-            connectedMySqlDatabase = new ConnectedMySqlDatabase(DATABASE);
-            DataGridView.DataSource = connectedMySqlDatabase.GetDataTable(TABLE);
+            connectedSqlDatabase = new ConnectedSqlDatabase(DATABASE);
+            DataGridView.DataSource = connectedSqlDatabase.GetDataTable(TABLE);
 
-            comboBoxColumnsToSearch.Items.AddRange(connectedMySqlDatabase.GetColumnNames(TABLE).ToArray());
-            comboBoxColumnsToSearch.SelectedIndex = 2;
+            comboBoxColumnsToSearch.Items.AddRange(connectedSqlDatabase.GetColumnNames(TABLE).ToArray());
+            comboBoxColumnsToSearch.SelectedIndex = 1;
         }
 
         private void ReloadButton_Click(object sender, EventArgs e)
         {
-            DataGridView.DataSource = connectedMySqlDatabase.GetDataTable(TABLE);
+            DataGridView.DataSource = connectedSqlDatabase.GetDataTable(TABLE);
         }
 
         private void UpdateButton_Click(object sender, EventArgs e)
@@ -52,7 +52,7 @@ namespace AddressBook
 
         private void DeleteButton_Click(object sender, EventArgs e)
         {
-            MySqlConnection mySqlConnection = connectedMySqlDatabase.GetMySqlConnection();
+            SqlConnection sqlConnection = connectedSqlDatabase.GetSqlConnection();
 
             int employeeToDelateID = 0;
             if (DataGridView.SelectedCells.Count == 1)
@@ -65,10 +65,10 @@ namespace AddressBook
 
                 try
                 {
-                    mySqlConnection.Open();
+                    sqlConnection.Open();
                     string query = $"DELETE FROM {TABLE} WHERE ID = {employeeToDelateID}";
 
-                    MySqlCommand cmd = new MySqlCommand(query, mySqlConnection);
+                    SqlCommand cmd = new SqlCommand(query, sqlConnection);
 
                     int rowDeleted = cmd.ExecuteNonQuery();
                     if (rowDeleted > 0)
@@ -86,8 +86,8 @@ namespace AddressBook
                 }
                 finally
                 {
-                    mySqlConnection.Close();
-                    DataGridView.DataSource = connectedMySqlDatabase.GetDataTable(TABLE);
+                    sqlConnection.Close();
+                    DataGridView.DataSource = connectedSqlDatabase.GetDataTable(TABLE);
                 }
 
             }
@@ -103,11 +103,11 @@ namespace AddressBook
             string? fieldToSearch = comboBoxColumnsToSearch.SelectedItem.ToString();
             if (!string.IsNullOrEmpty(searchTextBoxText) && !string.IsNullOrEmpty(fieldToSearch))
             {
-                DataGridView.DataSource = connectedMySqlDatabase.SearchData(TABLE, fieldToSearch, SearchTextBox.Text);
+                DataGridView.DataSource = connectedSqlDatabase.SearchDataBy(TABLE, fieldToSearch, SearchTextBox.Text);
             }
             else
             {
-                DataGridView.DataSource = connectedMySqlDatabase.GetDataTable(TABLE);
+                DataGridView.DataSource = connectedSqlDatabase.GetDataTable(TABLE);
             }
         }
     }

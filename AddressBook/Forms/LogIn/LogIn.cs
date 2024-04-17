@@ -1,19 +1,17 @@
-﻿using MySql.Data.MySqlClient;
-using System.Collections;
-using System.Text;
+﻿using System.Data.SqlClient;
 
 namespace AddressBook.Forms.LogIn
 {
     public partial class LogIn : Form
     {
-        private ConnectedMySqlDatabase connectedMySqlDatabase;
+        private ConnectedSqlDatabase connectedSqlDatabase;
         private const string DATABASE = "addressbook";
         private const string TABLE = "accessinfo";
 
         public LogIn()
         {
             InitializeComponent();
-            connectedMySqlDatabase = new ConnectedMySqlDatabase(DATABASE);
+            connectedSqlDatabase = new ConnectedSqlDatabase(DATABASE);
 
             textBoxPassword.UseSystemPasswordChar = true;
         }
@@ -47,25 +45,23 @@ namespace AddressBook.Forms.LogIn
             }
         }
 
-        private bool CanModify(string TABLE, string NAME, string PASSWORD)
+        private bool CanModify(string tableName, string userName, string password)
         {
-            MySqlConnection mySqlConnection = connectedMySqlDatabase.GetMySqlConnection();
-
-            bool can = false;
+            bool canModify = false;
+            SqlConnection sqlConnection = connectedSqlDatabase.GetSqlConnection();
             try
             {
-                string query = $"SELECT CANMODIFY FROM {TABLE} WHERE NAME = @NAME AND PASSWORD = @PASSWORD";
-
-                using (MySqlCommand cmd = new MySqlCommand(query, mySqlConnection))
+                string query = $"SELECT CANMODIFY FROM {tableName} WHERE NAME = @NAME AND PASSWORD = @PASSWORD";
+                using (SqlCommand cmd = new SqlCommand(query, sqlConnection))
                 {
-                    cmd.Parameters.AddWithValue("@NAME", NAME);
-                    cmd.Parameters.AddWithValue("@PASSWORD", PASSWORD);
-                    mySqlConnection.Open();
+                    cmd.Parameters.AddWithValue("@NAME", userName);
+                    cmd.Parameters.AddWithValue("@PASSWORD", password);
+                    sqlConnection.Open();
                     string result = cmd.ExecuteScalar().ToString();
 
-                    if (result == "YES")
+                    if (result == "True")
                     {
-                        can = true;
+                        canModify = true;
                     }
                 }
             }
@@ -75,26 +71,24 @@ namespace AddressBook.Forms.LogIn
             }
             finally
             {
-                mySqlConnection.Close();
+                sqlConnection.Close();
             }
 
-            return can;
+            return canModify;
         }
 
-        private bool CheckLogIn(string tableName, string NAME, string PASSWORD)
+        private bool CheckLogIn(string tableName, string userName, string password)
         {
-            MySqlConnection mySqlConnection = connectedMySqlDatabase.GetMySqlConnection();
-
             bool valueExists = false;
+            SqlConnection sqlConnection = connectedSqlDatabase.GetSqlConnection();
             try
             {
                 string query = $"SELECT COUNT(*) FROM {tableName} WHERE NAME = @NAME AND PASSWORD = @PASSWORD";
-
-                using (MySqlCommand cmd = new MySqlCommand(query, mySqlConnection))
+                using (SqlCommand cmd = new SqlCommand(query, sqlConnection))
                 {
-                    cmd.Parameters.AddWithValue("@NAME", NAME);
-                    cmd.Parameters.AddWithValue("@PASSWORD", PASSWORD);
-                    mySqlConnection.Open();
+                    cmd.Parameters.AddWithValue("@NAME", userName);
+                    cmd.Parameters.AddWithValue("@PASSWORD", password);
+                    sqlConnection.Open();
                     int count = Convert.ToInt32(cmd.ExecuteScalar());
 
                     if (count > 0)
@@ -109,7 +103,7 @@ namespace AddressBook.Forms.LogIn
             }
             finally
             {
-                mySqlConnection.Close();
+                sqlConnection.Close();
             }
 
             return valueExists;

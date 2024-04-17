@@ -1,13 +1,16 @@
-﻿using MySql.Data.MySqlClient;
+﻿using System.Data.SqlClient;
 
 namespace AddressBook
 {
     public partial class Update : Form
     {
-        ConnectedMySqlDatabase connectedMySqlDatabase;
+        ConnectedSqlDatabase connectedSqlDatabase;
         const string DATABASE = "addressbook";
         const string TABLE = "employeesinfo";
         readonly int employeeID;
+
+        private const string CITY_ENUM_TABLE = "CityEnum";
+        private const string POSITION_ENUM_TABLE = "PositionEnum";
 
         const int minEmployeeAge = 16;
 
@@ -26,29 +29,29 @@ namespace AddressBook
         public Update(DataGridView dataGridView, int ID)
         {
             InitializeComponent();
-            connectedMySqlDatabase = new ConnectedMySqlDatabase(DATABASE);
+            connectedSqlDatabase = new ConnectedSqlDatabase(DATABASE);
             employeeID = ID;
 
             this.dataGridView = dataGridView;
 
-            comboBoxCity.Items.AddRange(connectedMySqlDatabase.FetchEnumValues(TABLE, "City").ToArray());
-            comboBoxPosition.Items.AddRange(connectedMySqlDatabase.FetchEnumValues(TABLE, "Position").ToArray());
+            comboBoxCity.Items.AddRange(connectedSqlDatabase.GetEnumValues(CITY_ENUM_TABLE, "City").ToArray());
+            comboBoxPosition.Items.AddRange(connectedSqlDatabase.GetEnumValues(POSITION_ENUM_TABLE, "Position").ToArray());
 
             SetValuesToFields(ReadEmployeeInfo(employeeID));
         }
 
         private EmployeeInfo ReadEmployeeInfo(int ID)
         {
-            MySqlConnection mySqlConnection = connectedMySqlDatabase.GetMySqlConnection();
+            SqlConnection sqlConnection = connectedSqlDatabase.GetSqlConnection();
             EmployeeInfo employeeInfo = new EmployeeInfo();
 
             try
             {
-                mySqlConnection.Open();
+                sqlConnection.Open();
                 string query = $"SELECT * FROM employeesinfo WHERE ID = '{ID}'";
-                using (MySqlCommand cmd = new MySqlCommand(query, mySqlConnection))
+                using (SqlCommand cmd = new SqlCommand(query, sqlConnection))
                 {
-                    using (MySqlDataReader reader = cmd.ExecuteReader())
+                    using (SqlDataReader reader = cmd.ExecuteReader())
                     {
                         if (reader.Read())
                         {
@@ -57,7 +60,7 @@ namespace AddressBook
                             employeeInfo.Street = reader["Street"].ToString();
                             employeeInfo.Position = reader["Position"].ToString();
                             employeeInfo.Age = Convert.ToInt32(reader["Age"]);
-                            employeeInfo.Married = reader["Married"].ToString().Equals("Yes", StringComparison.OrdinalIgnoreCase);
+                            employeeInfo.Married = reader["Married"].ToString().Equals("True", StringComparison.OrdinalIgnoreCase);
                         }
                         else
                         {
@@ -72,7 +75,7 @@ namespace AddressBook
             }
             finally
             {
-                mySqlConnection.Close();
+                sqlConnection.Close();
             }
 
             return employeeInfo;
@@ -87,7 +90,6 @@ namespace AddressBook
             textBoxAge.Text = employeeInfo.Age.ToString();
             checkBoxMerried.Checked = employeeInfo.Married;
         }
-
 
         private int ValidInputs()
         {
@@ -105,20 +107,29 @@ namespace AddressBook
 
         private void UpdateButton_Click(object sender, EventArgs e)
         {
-            MySqlConnection mySqlConnection = connectedMySqlDatabase.GetMySqlConnection();
+            SqlConnection sqlConnection = connectedSqlDatabase.GetSqlConnection();
 
             int validationResult = ValidInputs();
             if (validationResult == 0)
             {
                 string selectedCity = comboBoxCity.SelectedItem.ToString();
                 string selectedPosition = comboBoxPosition.SelectedItem.ToString();
-                string selectedMarried = checkBoxMerried.Checked ? "Yes" : "No";
 
                 try
                 {
-                    mySqlConnection.Open();
-                    string query = $"UPDATE {TABLE} SET `Full Name` = '{textBoxFullName.Text}', City = '{selectedCity}', Street = '{textBoxStreet.Text}', Position = '{selectedPosition}', Age = '{textBoxAge.Text}', Married = '{selectedMarried}' WHERE ID = '{employeeID}'";
-                    MySqlCommand cmd = new MySqlCommand(query, mySqlConnection);
+                    sqlConnection.Open();
+
+                    string query = $"UPDATE {TABLE} SET [Full Name] = @FullName, City = @City, Street = @Street, Position = @Position, Age = @Age, Married = @Married WHERE ID = @EmployeeID";
+
+                    SqlCommand cmd = new SqlCommand(query, sqlConnection);
+
+                    cmd.Parameters.AddWithValue("@FullName", textBoxFullName.Text);
+                    cmd.Parameters.AddWithValue("@City", selectedCity);
+                    cmd.Parameters.AddWithValue("@Street", textBoxStreet.Text);
+                    cmd.Parameters.AddWithValue("@Position", selectedPosition);
+                    cmd.Parameters.AddWithValue("@Age", int.Parse(textBoxAge.Text));
+                    cmd.Parameters.AddWithValue("@Married", checkBoxMerried.Checked);
+                    cmd.Parameters.AddWithValue("@EmployeeID", employeeID);
 
                     int rowsAffected = cmd.ExecuteNonQuery();
                     if (rowsAffected > 0)
@@ -136,8 +147,8 @@ namespace AddressBook
                 }
                 finally
                 {
-                    mySqlConnection.Close();
-                    dataGridView.DataSource = connectedMySqlDatabase.GetDataTable(TABLE);
+                    sqlConnection.Close();
+                    dataGridView.DataSource = connectedSqlDatabase.GetDataTable(TABLE);
                 }
             }
             else if (validationResult == -1)

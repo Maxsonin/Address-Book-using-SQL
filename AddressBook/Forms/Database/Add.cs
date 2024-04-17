@@ -1,26 +1,28 @@
-﻿using MySql.Data.MySqlClient;
+﻿using System.Data.SqlClient;
 
 namespace AddressBook
 {
     public partial class Add : Form
     {
+        private const string DATABASE = "addressbook";
+        private const string TABLE = "employeesinfo";
+        private const string CITY_ENUM_TABLE = "CityEnum";
+        private const string POSITION_ENUM_TABLE = "PositionEnum";
 
-        ConnectedMySqlDatabase connectedMySqlDatabase;
-        const string DATABASE = "addressbook";
-        const string TABLE = "employeesinfo";
+        private ConnectedSqlDatabase connectedSqlDatabase;
 
-        DataGridView dataGridView;
+        private DataGridView dataGridView;
 
-        const int minEmployeeAge = 16;
+        private const int minEmployeeAge = 16;
 
         public Add(DataGridView dataGridView)
         {
             InitializeComponent();
             this.dataGridView = dataGridView;
-            connectedMySqlDatabase = new ConnectedMySqlDatabase(DATABASE);
+            connectedSqlDatabase = new ConnectedSqlDatabase(DATABASE);
 
-            comboBoxCity.Items.AddRange(connectedMySqlDatabase.FetchEnumValues(TABLE, "City").ToArray());
-            comboBoxPosition.Items.AddRange(connectedMySqlDatabase.FetchEnumValues(TABLE, "Position").ToArray());
+            comboBoxCity.Items.AddRange(connectedSqlDatabase.GetEnumValues(CITY_ENUM_TABLE, "City").ToArray());
+            comboBoxPosition.Items.AddRange(connectedSqlDatabase.GetEnumValues(POSITION_ENUM_TABLE, "Position").ToArray());
         }
 
         private void ExitButton_Click(object sender, EventArgs e) => Close();
@@ -49,39 +51,37 @@ namespace AddressBook
 
         private void AddButton_Click(object sender, EventArgs e)
         {
-            MySqlConnection mySqlConnection = connectedMySqlDatabase.GetMySqlConnection();
+            SqlConnection sqlConnection = connectedSqlDatabase.GetSqlConnection();
 
             int validationResult = ValidInputs();
             if (validationResult == 0)
             {
                 string selectedCity = comboBoxCity.SelectedItem.ToString();
                 string selectedPosition = comboBoxPosition.SelectedItem.ToString();
-                string selectedMarried = checkBoxMerried.Checked ? "Yes" : "No";
 
                 try
                 {
-                    mySqlConnection.Open();
+                    sqlConnection.Open();
 
-                    string query = $"INSERT INTO {TABLE} (`Full Name`, City, Street, Position, Age, Married) " +
-                                   "VALUES (@FullName, @City, @Street, @Position, @Age, @Married)";
+                    string query = $"INSERT INTO {TABLE} ([Full Name], City, Street, Position, Age, Married) VALUES (@FullName, @City, @Street, @Position, @Age, @Married)";
 
-                    MySqlCommand cmd = new MySqlCommand(query, mySqlConnection);
+                    SqlCommand cmd = new SqlCommand(query, sqlConnection);
 
                     cmd.Parameters.AddWithValue("@FullName", textBoxFullName.Text);
                     cmd.Parameters.AddWithValue("@City", selectedCity);
                     cmd.Parameters.AddWithValue("@Street", textBoxStreet.Text);
                     cmd.Parameters.AddWithValue("@Position", selectedPosition);
-                    cmd.Parameters.AddWithValue("@Age", textBoxAge.Text);
-                    cmd.Parameters.AddWithValue("@Married", selectedMarried);
+                    cmd.Parameters.AddWithValue("@Age", int.Parse(textBoxAge.Text));
+                    cmd.Parameters.AddWithValue("@Married", checkBoxMerried.Checked);
 
                     int rowsAffected = cmd.ExecuteNonQuery();
                     if (rowsAffected > 0)
                     {
-                        MessageBox.Show("Data Successfully Updated");
+                        MessageBox.Show("Data Successfully Added");
                     }
                     else
                     {
-                        MessageBox.Show("No records were updated");
+                        MessageBox.Show("No elements were added");
                     }
                 }
                 catch (Exception ex)
@@ -90,8 +90,8 @@ namespace AddressBook
                 }
                 finally
                 {
-                    mySqlConnection.Close();
-                    dataGridView.DataSource = connectedMySqlDatabase.GetDataTable(TABLE);
+                    sqlConnection.Close();
+                    dataGridView.DataSource = connectedSqlDatabase.GetDataTable(TABLE);
                 }
             }
             else if (validationResult == -1)

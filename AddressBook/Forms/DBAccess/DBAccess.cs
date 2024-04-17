@@ -1,18 +1,18 @@
-﻿using MySql.Data.MySqlClient;
+﻿using System.Data.SqlClient;
 
 namespace AddressBook.Forms.DBAccess
 {
     public partial class DBAccess : Form
     {
-        ConnectedMySqlDatabase connectedMySqlDatabase;
+        ConnectedSqlDatabase connectedSqlDatabase;
         const string DATABASE = "addressbook";
         const string TABLE = "accessinfo";
 
         public DBAccess()
         {
             InitializeComponent();
-            connectedMySqlDatabase = new ConnectedMySqlDatabase(DATABASE);
-            DataGridView.DataSource = connectedMySqlDatabase.GetDataTable(TABLE);
+            connectedSqlDatabase = new ConnectedSqlDatabase(DATABASE);
+            DataGridView.DataSource = connectedSqlDatabase.GetDataTable(TABLE);
         }
 
         private int ValidInputs()
@@ -31,17 +31,17 @@ namespace AddressBook.Forms.DBAccess
 
         public bool ValueExistsInTable(string tableName, string columnName, string valueToCheck)
         {
-            MySqlConnection mySqlConnection = connectedMySqlDatabase.GetMySqlConnection();
+            SqlConnection sqlConnection = connectedSqlDatabase.GetSqlConnection();
 
             bool valueExists = false;
             try
             {
                 string query = $"SELECT COUNT(*) FROM {tableName} WHERE {columnName} = @ValueToCheck";
 
-                using (MySqlCommand cmd = new MySqlCommand(query, mySqlConnection))
+                using (SqlCommand cmd = new SqlCommand(query, sqlConnection))
                 {
                     cmd.Parameters.AddWithValue("@ValueToCheck", valueToCheck);
-                    mySqlConnection.Open();
+                    sqlConnection.Open();
                     int count = Convert.ToInt32(cmd.ExecuteScalar());
 
                     if (count > 0)
@@ -56,7 +56,7 @@ namespace AddressBook.Forms.DBAccess
             }
             finally
             {
-                mySqlConnection.Close();
+                sqlConnection.Close();
             }
 
             return valueExists;
@@ -64,23 +64,23 @@ namespace AddressBook.Forms.DBAccess
 
         private void AddButton_Click(object sender, EventArgs e)
         {
-            MySqlConnection mySqlConnection = connectedMySqlDatabase.GetMySqlConnection();
+            SqlConnection sqlConnection = connectedSqlDatabase.GetSqlConnection();
 
             int validationResult = ValidInputs();
             if (validationResult == 0)
             {
                 try
                 {
-                    mySqlConnection.Open();
+                    sqlConnection.Open();
 
                     string query = $"INSERT INTO {TABLE} (NAME, PASSWORD, CANMODIFY) " +
                                    "VALUES (@NAME, @PASSWORD, @CANMODIFY)";
 
-                    MySqlCommand cmd = new MySqlCommand(query, mySqlConnection);
+                    SqlCommand cmd = new SqlCommand(query, sqlConnection);
                    
                     cmd.Parameters.AddWithValue("@NAME", textBoxLogin.Text);
                     cmd.Parameters.AddWithValue("@PASSWORD", textBoxPassword.Text);
-                    cmd.Parameters.AddWithValue("@CANMODIFY", checkBoxCANMODIFY.Checked ? "YES" : "NO");
+                    cmd.Parameters.AddWithValue("@CANMODIFY", checkBoxCANMODIFY.Checked);
 
                     int rowsAffected = cmd.ExecuteNonQuery();
                     if (rowsAffected > 0)
@@ -98,8 +98,8 @@ namespace AddressBook.Forms.DBAccess
                 }
                 finally
                 {
-                    mySqlConnection.Close();
-                    DataGridView.DataSource = connectedMySqlDatabase.GetDataTable(TABLE);
+                    sqlConnection.Close();
+                    DataGridView.DataSource = connectedSqlDatabase.GetDataTable(TABLE);
                 }
             }
             else if (validationResult == -1)
@@ -114,7 +114,7 @@ namespace AddressBook.Forms.DBAccess
 
         private void DeleteButton_Click(object sender, EventArgs e)
         {
-            MySqlConnection mySqlConnection = connectedMySqlDatabase.GetMySqlConnection();
+            SqlConnection sqlConnection = connectedSqlDatabase.GetSqlConnection();
 
             string userToDelateNAME = "";
             if (DataGridView.SelectedCells.Count == 1)
@@ -127,10 +127,10 @@ namespace AddressBook.Forms.DBAccess
 
                 try
                 {
-                    mySqlConnection.Open();
+                    sqlConnection.Open();
                     string query = $"DELETE FROM {TABLE} WHERE NAME = '{userToDelateNAME}'";
 
-                    MySqlCommand cmd = new MySqlCommand(query, mySqlConnection);
+                    SqlCommand cmd = new SqlCommand(query, sqlConnection);
 
                     int rowDeleted = cmd.ExecuteNonQuery();
                     if (rowDeleted > 0)
@@ -148,8 +148,8 @@ namespace AddressBook.Forms.DBAccess
                 }
                 finally
                 {
-                    mySqlConnection.Close();
-                    DataGridView.DataSource = connectedMySqlDatabase.GetDataTable(TABLE);
+                    sqlConnection.Close();
+                    DataGridView.DataSource = connectedSqlDatabase.GetDataTable(TABLE);
                 }
             }
             else
@@ -160,7 +160,7 @@ namespace AddressBook.Forms.DBAccess
 
         private void ReloadButton_Click(object sender, EventArgs e)
         {
-            DataGridView.DataSource = connectedMySqlDatabase.GetDataTable(TABLE);
+            DataGridView.DataSource = connectedSqlDatabase.GetDataTable(TABLE);
         }
     }
 }
