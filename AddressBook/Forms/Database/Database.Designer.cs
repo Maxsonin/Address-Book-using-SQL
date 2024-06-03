@@ -37,6 +37,7 @@
             DeleteButton = new Button();
             SearchByPrompt = new Label();
             comboBoxColumnsToSearch = new ComboBox();
+            STTButton = new Button();
             ((System.ComponentModel.ISupportInitialize)DataGridView).BeginInit();
             SuspendLayout();
             // 
@@ -137,12 +138,24 @@
             comboBoxColumnsToSearch.Size = new Size(179, 37);
             comboBoxColumnsToSearch.TabIndex = 32;
             // 
+            // STTButton
+            // 
+            STTButton.Font = new Font("Verdana", 18F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            STTButton.Location = new Point(810, 16);
+            STTButton.Name = "STTButton";
+            STTButton.Size = new Size(219, 40);
+            STTButton.TabIndex = 33;
+            STTButton.Text = "Use STT";
+            STTButton.UseVisualStyleBackColor = true;
+            STTButton.Click += STTButton_Click;
+            // 
             // Database
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.FromArgb(231, 239, 254);
             ClientSize = new Size(1070, 437);
+            Controls.Add(STTButton);
             Controls.Add(comboBoxColumnsToSearch);
             Controls.Add(SearchByPrompt);
             Controls.Add(DeleteButton);
@@ -170,5 +183,6 @@
         private Button DeleteButton;
         private Label SearchByPrompt;
         private ComboBox comboBoxColumnsToSearch;
+        private Button STTButton;
     }
 }

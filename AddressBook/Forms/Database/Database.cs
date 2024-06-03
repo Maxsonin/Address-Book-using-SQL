@@ -1,4 +1,5 @@
 ﻿using System.Data.SqlClient;
+using System.Speech.Recognition;
 
 namespace AddressBook
 {
@@ -9,6 +10,9 @@ namespace AddressBook
 
         ConnectedSqlDatabase connectedSqlDatabase;
 
+        SpeechRecognitionEngine speechRecognizer;
+        private bool isSpeechRecognitionActive = false;
+
         public Database()
         {
             InitializeComponent();
@@ -17,6 +21,26 @@ namespace AddressBook
 
             comboBoxColumnsToSearch.Items.AddRange(connectedSqlDatabase.GetColumnNames(TABLE).ToArray());
             comboBoxColumnsToSearch.SelectedIndex = 1;
+
+            InitializeSpeechRecognition();
+            STTButton.BackColor = Color.Red;
+            STTButton.ForeColor = Color.White;
+        }
+
+        private void InitializeSpeechRecognition()
+        {
+            // Initialize the speech recognizer
+            speechRecognizer = new SpeechRecognitionEngine();
+            speechRecognizer.SetInputToDefaultAudioDevice();
+            Grammar grammar = new DictationGrammar();
+            speechRecognizer.LoadGrammar(grammar);
+            speechRecognizer.SpeechRecognized += new EventHandler<SpeechRecognizedEventArgs>(RecogniseSpeech);
+        }
+
+        // Speech Recognition
+        private void RecogniseSpeech(object sender, SpeechRecognizedEventArgs e)
+        {
+            SearchTextBox.AppendText(e.Result.Text);
         }
 
         private void ReloadButton_Click(object sender, EventArgs e)
@@ -108,6 +132,25 @@ namespace AddressBook
             else
             {
                 DataGridView.DataSource = connectedSqlDatabase.GetDataTable(TABLE);
+            }
+        }
+
+        private void STTButton_Click(object sender, EventArgs e)
+        {
+            // Toggle speech recognition on or off
+            if (!isSpeechRecognitionActive)
+            {
+                // Start speech recognition
+                speechRecognizer.RecognizeAsync(RecognizeMode.Multiple);
+                isSpeechRecognitionActive = true;
+                STTButton.BackColor = Color.Green;
+            }
+            else
+            {
+                // Stop speech recognition
+                speechRecognizer.RecognizeAsyncStop();
+                isSpeechRecognitionActive = false;
+                STTButton.BackColor = Color.Red;
             }
         }
     }

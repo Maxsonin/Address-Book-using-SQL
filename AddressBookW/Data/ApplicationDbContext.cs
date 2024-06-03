@@ -10,5 +10,5 @@ namespace AddressBookW.Data
 		{	}
 
 		public DbSet<EmployeeEntity> Employees { get; set; }
-	}
+    }
 }

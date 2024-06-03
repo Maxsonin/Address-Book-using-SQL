@@ -18,7 +18,7 @@ namespace AddressBook.Forms.LogIn
 
         private void LogInButton_Click(object sender, EventArgs e)
         {
-            if (string.IsNullOrEmpty(textBoxLogin.Text) || string.IsNullOrEmpty(textBoxPassword.Text))
+/*            if (string.IsNullOrEmpty(textBoxLogin.Text) || string.IsNullOrEmpty(textBoxPassword.Text))
             {
                 MessageBox.Show("Fill all fields");
             }
@@ -42,7 +42,12 @@ namespace AddressBook.Forms.LogIn
             else
             {
                 MessageBox.Show("Invalid Input or Password");
-            }
+            }*/
+
+            Hide();
+            MainForm main = new MainForm();
+            main.FormClosed += (s, args) => Close();
+            main.Show();
         }
 
         private bool CanModify(string tableName, string userName, string password)
